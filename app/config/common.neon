@@ -1,0 +1,29 @@
+parameters:
+
+
+application:
+	errorPresenter: Error
+	mapping:
+		*: [App, Modules\*, Presenters\*Presenter]
+
+
+session:
+	expiration: 14 days
+
+
+di:
+	export:
+		parameters: no
+		tags: no
+
+
+services:
+	router: App\Router\RouterFactory::createRouter
+	cache.watch: Nette\Caching\Cache(namespace: 'repo-watch')
+	repository.watch.mysql: App\Model\Repositories\MySqlWatchRepositoryIml
+	repository.watch.xml: App\Model\Repositories\XmlWatchRepository
+	repository.watch: App\Model\Decorators\CachedWatchRepository(@repository.watch.xml, @cache.watch)
+	- App\Services\XmlWatchLoaderMock
+	- App\Mappings\WatchDtoToArrayImpl
+	- App\Mappings\XmlArrayToWatchDto
+	- App\Presenters\WatchPresenter(@repository.watch)
